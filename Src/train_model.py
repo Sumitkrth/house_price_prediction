@@ -1,3 +1,4 @@
+# Src/train_model.py
 import pandas as pd
 import numpy as np
 from utils import clean_total_sqft
@@ -28,9 +29,7 @@ def remove_extreme_values(df):
     ]
 
 def preprocess_and_train(data_path="Data/house_data.csv", model_path="models/house_price_model.pkl"):
-    # ======================
-    # Load & Preprocess Data
-    # ======================
+    # Load data
     df = pd.read_csv(data_path)
 
     # Clean area
@@ -51,15 +50,13 @@ def preprocess_and_train(data_path="Data/house_data.csv", model_path="models/hou
     df['location'] = df['location'].apply(lambda x: 'other' if x in rare_locs else x)
 
     # Add price_per_sqft
-    df['price_per_sqft'] = df['price'] * 100000 / df['total_sqft']  # assuming price is in lakhs
+    df['price_per_sqft'] = df['price'] * 100000 / df['total_sqft']
 
     # Remove extreme outliers
     df = remove_pps_outliers(df)
     df = remove_extreme_values(df)
 
-    # ======================
-    # Features & Target
-    # ======================
+    # Features & target
     X = df[['total_sqft', 'Bedrooms', 'location', 'price_per_sqft']]
     y = df['price']
 
@@ -75,9 +72,7 @@ def preprocess_and_train(data_path="Data/house_data.csv", model_path="models/hou
         ('model', LinearRegression())
     ])
 
-    # ======================
-    # Train & Evaluate
-    # ======================
+    # Train & evaluate
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
@@ -85,15 +80,9 @@ def preprocess_and_train(data_path="Data/house_data.csv", model_path="models/hou
     r2 = r2_score(y_test, y_pred)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 
-    print("✅ Model trained successfully!")
-    print(f"R² Score: {r2:.4f}")
-    print(f"RMSE: {rmse:.4f}")
-
-    # ======================
-    # Save Model
-    # ======================
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    # Save model
+    os.makedirs("models", exist_ok=True)
     joblib.dump(pipeline, model_path)
-    print(f"📦 Model saved to {model_path}")
 
+    print(f"✅ Model trained. R²: {r2:.4f}, RMSE: {rmse:.4f}")
     return pipeline, r2, rmse

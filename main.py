@@ -2,6 +2,14 @@ import argparse
 from Src.train_model import preprocess_and_train
 from Src.predict_price import predict_house_price
 
+# Train only if needed
+try:
+    model, r2, rmse = preprocess_and_train()
+except FileNotFoundError as e:
+    print(f"❌ Error: {e}")
+    print("Make sure 'Data/house_data.csv' exists in your repo.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="House Price Predictor")
     parser.add_argument("--train", action="store_true", help="Train the model")
