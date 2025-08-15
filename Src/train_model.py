@@ -37,7 +37,7 @@ def remove_extreme_values(df):
 # ======================
 # Load & Preprocess Data
 # ======================
-df = pd.read_csv("data/house_data.csv")
+df = pd.read_csv("Data/house_data.csv")
 
 # Clean area
 df['total_sqft'] = df['total_sqft'].apply(clean_total_sqft)
