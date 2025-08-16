@@ -1,4 +1,11 @@
 # Src/train_model.py
+import os
+import sys
+# ✅ Ensure Python can find utils.py in the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
+import joblib
 import pandas as pd
 import numpy as np
 from utils import clean_total_sqft
@@ -7,9 +14,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import r2_score, mean_squared_error
-import joblib
-import os
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
 def remove_pps_outliers(df):
     df_out = pd.DataFrame()
@@ -79,10 +84,13 @@ def preprocess_and_train(data_path="Data/house_data.csv", model_path="models/hou
 
     r2 = r2_score(y_test, y_pred)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    mae = mean_absolute_error(y_test, y_pred)
 
     # Save model
     os.makedirs("models", exist_ok=True)
     joblib.dump(pipeline, model_path)
 
-    print(f"✅ Model trained. R²: {r2:.4f}, RMSE: {rmse:.4f}")
-    return pipeline, r2, rmse
+    print(f"✅ Model trained. R²: {r2:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}")
+    return pipeline, r2, rmse, mae
+if __name__ == "__main__":
+    preprocess_and_train()
